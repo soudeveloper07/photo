@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elite Photo Gallery</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Fancybox CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --orange-primary: #ff6b00;
+            --orange-glow: #ff8c00;
+            --orange-light: #ffa500;
+            --black-bg: #0a0a0a;
+            --black-card: #1a1a1a;
+            --black-overlay: #0f0f0f;
+        }
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background: var(--black-bg);
+            min-height: 100vh;
+            padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            overflow-x: hidden;
+        }
+
+        /* Animated background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(255, 107, 0, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(255, 140, 0, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 40% 20%, rgba(255, 165, 0, 0.08) 0%, transparent 50%);
+            z-index: -1;
+            animation: bgPulse 15s ease-in-out infinite;
+        }
+
+        @keyframes bgPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        /* Header Section */
+        .header {
+            text-align: center;
+            padding: 60px 20px 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--orange-primary), transparent);
+        }
+
+        .header h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 4.5rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--orange-primary) 0%, var(--orange-light) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            position: relative;
+            display: inline-block;
+            animation: titleGlow 3s ease-in-out infinite;
+        }
+
+        @keyframes titleGlow {
+            0%, 100% {
+                filter: drop-shadow(0 0 10px var(--orange-primary));
+            }
+            50% {
+                filter: drop-shadow(0 0 30px var(--orange-glow));
+            }
+        }
+
+        .header p {
+            font-size: 1.3rem;
+            color: #999;
+            font-weight: 300;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .header-line {
+            width: 100px;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--orange-primary), transparent);
+            margin: 25px auto;
+            animation: lineExpand 2s ease-in-out infinite;
+        }
+
+        @keyframes lineExpand {
+            0%, 100% { width: 100px; }
+            50% { width: 200px; }
+        }
+
+        /* Gallery Container */
+        .gallery-container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* Gallery Grid - Masonry Style */
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 60px;
+        }
+
+        /* Gallery Item */
+        .gallery-item {
+            position: relative;
+            overflow: hidden;
+            border-radius: 10px;
+            background: var(--black-card);
+            border: 2px solid rgba(255, 107, 0, 0.1);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .gallery-item::before {
+            content: '';
+            display: block;
+            padding-top: 100%;
+        }
+
+        .gallery-item::after {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, var(--orange-primary), var(--orange-light));
+            border-radius: 10px;
+            opacity: 0;
+            z-index: -1;
+            transition: opacity 0.4s ease;
+        }
+
+        .gallery-item:hover::after {
+            opacity: 1;
+        }
+
+        .gallery-item:hover {
+            transform: translateY(-10px) scale(1.02);
+            border-color: var(--orange-primary);
+            box-shadow: 
+                0 20px 40px rgba(255, 107, 0, 0.3),
+                0 0 60px rgba(255, 107, 0, 0.2),
+                inset 0 0 0 2px var(--orange-primary);
+        }
+
+        .gallery-item img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: none;
+            -webkit-user-drag: none;
+            user-drag: none;
+            filter: brightness(0.85) contrast(1.1);
+        }
+
+        .gallery-item:hover img {
+            transform: scale(1.15) rotate(2deg);
+            filter: brightness(1) contrast(1.2);
+        }
+
+        /* Scan Line Effect */
+        .scan-line {
+            position: absolute;
+            top: -100%;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                to bottom,
+                transparent 0%,
+                rgba(255, 107, 0, 0.1) 50%,
+                transparent 100%
+            );
+            animation: scan 3s linear infinite;
+            pointer-events: none;
+        }
+
+        @keyframes scan {
+            0% { top: -100%; }
+            100% { top: 100%; }
+        }
+
+        /* Overlay Effect */
+        .gallery-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(
+                135deg,
+                rgba(255, 107, 0, 0.9) 0%,
+                rgba(10, 10, 10, 0.9) 100%
+            );
+            opacity: 0;
+            transition: all 0.4s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .gallery-item:hover .gallery-overlay {
+            opacity: 1;
+        }
+
+        .gallery-overlay-icon {
+            font-size: 3rem;
+            color: white;
+            margin-bottom: 15px;
+            transform: scale(0);
+            transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .gallery-item:hover .gallery-overlay-icon {
+            transform: scale(1);
+        }
+
+        .gallery-overlay-text {
+            color: white;
+            font-size: 1.3rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transform: translateY(20px);
+            opacity: 0;
+            transition: all 0.4s ease 0.1s;
+        }
+
+        .gallery-item:hover .gallery-overlay-text {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        /* Corner Accents */
+        .corner-accent {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border: 2px solid var(--orange-primary);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .corner-tl {
+            top: 10px;
+            left: 10px;
+            border-right: none;
+            border-bottom: none;
+        }
+
+        .corner-tr {
+            top: 10px;
+            right: 10px;
+            border-left: none;
+            border-bottom: none;
+        }
+
+        .corner-bl {
+            bottom: 10px;
+            left: 10px;
+            border-right: none;
+            border-top: none;
+        }
+
+        .corner-br {
+            bottom: 10px;
+            right: 10px;
+            border-left: none;
+            border-top: none;
+        }
+
+        .gallery-item:hover .corner-accent {
+            opacity: 1;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 50px 20px;
+            margin-top: 40px;
+            border-top: 1px solid rgba(255, 107, 0, 0.2);
+            position: relative;
+        }
+
+        .footer p {
+            color: #666;
+            font-size: 1rem;
+            letter-spacing: 1px;
+            margin: 0;
+        }
+
+        .footer-glow {
+            position: absolute;
+            top: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 300px;
+            height: 100px;
+            background: radial-gradient(ellipse, rgba(255, 107, 0, 0.2), transparent);
+            pointer-events: none;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+
+            .header p {
+                font-size: 1rem;
+            }
+
+            .gallery-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: 15px;
+            }
+
+            .gallery-overlay-icon {
+                font-size: 2rem;
+            }
+
+            .gallery-overlay-text {
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.8rem;
+                letter-spacing: 1px;
+            }
+
+            .gallery-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+
+            .gallery-container {
+                padding: 20px 10px;
+            }
+        }
+
+        /* Custom Fancybox Theme */
+        .fancybox__container {
+            --fancybox-bg: #0a0a0a;
+        }
+
+        .fancybox__slide {
+            padding: 20px;
+        }
+
+        /* Prevent selection and dragging */
+        img {
+            -webkit-user-select: none;
+            -webkit-user-drag: none;
+            user-select: none;
+            user-drag: none;
+        }
+
+        /* Loading Animation */
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .gallery-item {
+            animation: slideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            opacity: 0;
+        }
+
+        .gallery-item:nth-child(1) { animation-delay: 0.05s; }
+        .gallery-item:nth-child(2) { animation-delay: 0.1s; }
+        .gallery-item:nth-child(3) { animation-delay: 0.15s; }
+        .gallery-item:nth-child(4) { animation-delay: 0.2s; }
+        .gallery-item:nth-child(5) { animation-delay: 0.25s; }
+        .gallery-item:nth-child(6) { animation-delay: 0.3s; }
+        .gallery-item:nth-child(7) { animation-delay: 0.35s; }
+        .gallery-item:nth-child(8) { animation-delay: 0.4s; }
+        .gallery-item:nth-child(9) { animation-delay: 0.45s; }
+        .gallery-item:nth-child(10) { animation-delay: 0.5s; }
+        .gallery-item:nth-child(11) { animation-delay: 0.55s; }
+        .gallery-item:nth-child(12) { animation-delay: 0.6s; }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--black-bg);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, var(--orange-primary), var(--orange-light));
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--orange-glow);
+        }
+    </style>
+</head>
+<body>
+    
+    <!-- Header Section -->
+    <div class="header">
+        <h1>GALLERY</h1>
+        <div class="header-line"></div>
+        <p>Premium Photo Collection</p>
+    </div>
+
+    <!-- Gallery Container -->
+    <div class="gallery-container">
+        <div class="gallery-grid">
+            
+            <!-- Gallery Item 1 -->
+            <div class="gallery-item">
+                <a href="image/image1.jpeg" data-fancybox="gallery" data-caption="Mountain Landscape">
+                    <img src="image/image1.jpeg" alt="Mountain Landscape">
+                    <div class="scan-line"></div>
+                    <div class="gallery-overlay">
+                        <div class="gallery-overlay-icon">⚡</div>
+                        <span class="gallery-overlay-text">Mountain View</span>
+                    </div>
+                    <div class="corner-accent corner-tl"></div>
+                    <div class="corner-accent corner-tr"></div>
+                    <div class="corner-accent corner-bl"></div>
+                    <div class="corner-accent corner-br"></div>
+                </a>
+            </div>
+
+            <!-- Gallery Item 2 -->
+            <div class="gallery-item">
+                <a href="image/image2.jpeg" data-fancybox="gallery" data-caption="Forest Path">
+                    <img src="image/image2.jpeg" alt="Forest Path">
+                    <div class="scan-line"></div>
+                    <div class="gallery-overlay">
+                        <div class="gallery-overlay-icon">🌲</div>
+                        <span class="gallery-overlay-text">Forest Path</span>
+                    </div>
+                    <div class="corner-accent corner-tl"></div>
+                    <div class="corner-accent corner-tr"></div>
+                    <div class="corner-accent corner-bl"></div>
+                    <div class="corner-accent corner-br"></div>
+                </a>
+            </div>
+
+            <!-- Gallery Item 3 -->
+            <div class="gallery-item">
+                <a href="image/image3.jpeg" data-fancybox="gallery" data-caption="Ocean Sunset">
+                    <img src="image/image3.jpeg" alt="Ocean Sunset">
+                    <div class="scan-line"></div>
+                    <div class="gallery-overlay">
+                        <div class="gallery-overlay-icon">🌅</div>
+                        <span class="gallery-overlay-text">Ocean Sunset</span>
+                    </div>
+                    <div class="corner-accent corner-tl"></div>
+                    <div class="corner-accent corner-tr"></div>
+                    <div class="corner-accent corner-bl"></div>
+                    <div class="corner-accent corner-br"></div>
+                </a>
+            </div>
+
+            <!-- Gallery Item 4 -->
+            <div class="gallery-item">
+                <a href="image/image4.jpeg" data-fancybox="gallery" data-caption="Starry Night">
+                    <img src="image/image4.jpeg" alt="Starry Night">
+                    <div class="scan-line"></div>
+                    <div class="gallery-overlay">
+                        <div class="gallery-overlay-icon">✨</div>
+                        <span class="gallery-overlay-text">Starry Night</span>
+                    </div>
+                    <div class="corner-accent corner-tl"></div>
+                    <div class="corner-accent corner-tr"></div>
+                    <div class="corner-accent corner-bl"></div>
+                    <div class="corner-accent corner-br"></div>
+                </a>
+            </div>
+
+            <!-- Gallery Item 5 -->
+            <div class="gallery-item">
+                <a href="image/image5.jpeg" data-fancybox="gallery" data-caption="Desert Dunes">
+                    <img src="image/image5.jpeg" alt="Desert Dunes">
+                    <div class="scan-line"></div>
+                    <div class="gallery-overlay">
+                        <div class="gallery-overlay-icon">🏜️</div>
+                        <span class="gallery-overlay-text">Desert Dunes</span>
+                    </div>
+                    <div class="corner-accent corner-tl"></div>
+                    <div class="corner-accent corner-tr"></div>
+                    <div class="corner-accent corner-bl"></div>
+                    <div class="corner-accent corner-br"></div>
+                </a>
+            </div>
+
+            <!-- Gallery Item 6 -->
+            <div class="gallery-item">
+                <a href="image/image6.jpeg" data-fancybox="gallery" data-caption="Misty Mountain">
+                    <img src="image/image6.jpeg" alt="Misty Mountain">
+                    <div class="scan-line"></div>
+                    <div class="gallery-overlay">
+                        <div class="gallery-overlay-icon">⛰️</div>
+                        <span class="gallery-overlay-text">Misty Peak</span>
+                    </div>
+                    <div class="corner-accent corner-tl"></div>
+                    <div class="corner-accent corner-tr"></div>
+                    <div class="corner-accent corner-bl"></div>
+                    <div class="corner-accent corner-br"></div>
+                </a>
+            </div>
+
+            <!-- Gallery Item 7 -->
+            <div class="gallery-item">
+                <a href="image/image7.jpeg" data-fancybox="gallery" data-caption="Autumn Forest">
+                    <img src="image/image7.jpeg" alt="Autumn Forest">
+                    <div class="scan-line"></div>
+                    <div class="gallery-overlay">
+                        <div class="gallery-overlay-icon">🍂</div>
+                        <span class="gallery-overlay-text">Autumn Forest</span>
+                    </div>
+                    <div class="corner-accent corner-tl"></div>
+                    <div class="corner-accent corner-tr"></div>
+                    <div class="corner-accent corner-bl"></div>
+                    <div class="corner-accent corner-br"></div>
+                </a>
+            </div>
+
+            <!-- Gallery Item 8 -->
+            <div class="gallery-item">
+                <a href="image/image8.jpeg" data-fancybox="gallery" data-caption="Northern Lights">
+                    <img src="image/image8.jpeg" alt="Northern Lights">
+                    <div class="scan-line"></div>
+                    <div class="gallery-overlay">
+                        <div class="gallery-overlay-icon">💫</div>
+                        <span class="gallery-overlay-text">Aurora</span>
+                    </div>
+                    <div class="corner-accent corner-tl"></div>
+                    <div class="corner-accent corner-tr"></div>
+                    <div class="corner-accent corner-bl"></div>
+                    <div class="corner-accent corner-br"></div>
+                </a>
+            </div>
+
+            <!-- Gallery Item 9 -->
+            <div class="gallery-item">
+                <a href="image/image9.jpeg" data-fancybox="gallery" data-caption="Tropical Beach">
+                    <img src="image/image9.jpeg" alt="Tropical Beach">
+                    <div class="scan-line"></div>
+                    <div class="gallery-overlay">
+                        <div class="gallery-overlay-icon">🏖️</div>
+                        <span class="gallery-overlay-text">Paradise Beach</span>
+                    </div>
+                    <div class="corner-accent corner-tl"></div>
+                    <div class="corner-accent corner-tr"></div>
+                    <div class="corner-accent corner-bl"></div>
+                    <div class="corner-accent corner-br"></div>
+                </a>
+            </div>
+
+            <!-- Gallery Item 10 -->
+            <div class="gallery-item">
+                <a href="image/image10.jpeg" data-fancybox="gallery" data-caption="Snow Peak">
+                    <img src="image/image10.jpeg" alt="Snow Peak">
+                    <div class="scan-line"></div>
+                    <div class="gallery-overlay">
+                        <div class="gallery-overlay-icon">❄️</div>
+                        <span class="gallery-overlay-text">Snow Peak</span>
+                    </div>
+                    <div class="corner-accent corner-tl"></div>
+                    <div class="corner-accent corner-tr"></div>
+                    <div class="corner-accent corner-bl"></div>
+                    <div class="corner-accent corner-br"></div>
+                </a>
+            </div>
+
+            <!-- Gallery Item 11 -->
+            <div class="gallery-item">
+                <a href="image/image11.jpeg" data-fancybox="gallery" data-caption="Green Valley">
+                    <img src="image/image11.jpeg" alt="Green Valley">
+                    <div class="scan-line"></div>
+                    <div class="gallery-overlay">
+                        <div class="gallery-overlay-icon">🌿</div>
+                        <span class="gallery-overlay-text">Green Valley</span>
+                    </div>
+                    <div class="corner-accent corner-tl"></div>
+                    <div class="corner-accent corner-tr"></div>
+                    <div class="corner-accent corner-bl"></div>
+                    <div class="corner-accent corner-br"></div>
+                </a>
+            </div>
+
+            <!-- Gallery Item 12 -->
+            <div class="gallery-item">
+                <a href="image/image12.jpeg" data-fancybox="gallery" data-caption="Rocky Coast">
+                    <img src="image/image12.jpeg" alt="Rocky Coast">
+                    <div class="scan-line"></div>
+                    <div class="gallery-overlay">
+                        <div class="gallery-overlay-icon">🌊</div>
+                        <span class="gallery-overlay-text">Rocky Coast</span>
+                    </div>
+                    <div class="corner-accent corner-tl"></div>
+                    <div class="corner-accent corner-tr"></div>
+                    <div class="corner-accent corner-bl"></div>
+                    <div class="corner-accent corner-br"></div>
+                </a>
+            </div>
+
+
+            <!-- Gallery Item 13 -->
+            <div class="gallery-item">
+                <a href="image/image13.jpeg" data-fancybox="gallery" data-caption="Mountain Lake">
+                    <img src="image/image13.jpeg" alt="Mountain Lake">
+                    <div class="scan-line"></div>
+                    <div class="gallery-overlay">
+                        <div class="gallery-overlay-icon">🌊</div>
+                        <span class="gallery-overlay-text">Mountain Lake</span>
+                    </div>
+                    <div class="corner-accent corner-tl"></div>
+                    <div class="corner-accent corner-tr"></div>
+                    <div class="corner-accent corner-bl"></div>
+                    <div class="corner-accent corner-br"></div>
+                </a>
+            </div>
+
+            <!-- Gallery Item 14 -->
+            <div class="gallery-item">
+                <a href="image/image14.jpeg" data-fancybox="gallery" data-caption="Mountain Peak">
+                    <img src="image/image14.jpeg" alt="Mountain Peak">
+                    <div class="scan-line"></div>
+                    <div class="gallery-overlay">
+                        <div class="gallery-overlay-icon">⛰️</div>
+                        <span class="gallery-overlay-text">Mountain Peak</span>
+                    </div>
+                    <div class="corner-accent corner-tl"></div>
+                    <div class="corner-accent corner-tr"></div>
+                    <div class="corner-accent corner-bl"></div>
+                    <div class="corner-accent corner-br"></div>
+                </a>
+            </div>
+
+            <!-- Gallery Item 15 -->
+            <div class="gallery-item">
+                <a href="image/image15.jpeg" data-fancybox="gallery" data-caption="Desert Dunes">
+                    <img src="image/image15.jpeg" alt="Desert Dunes ">
+                    <div class="scan-line"></div>
+                    <div class="gallery-overlay">
+                        <div class="gallery-overlay-icon">🌊</div>
+                        <span class="gallery-overlay-text">Rocky Coast</span>
+                    </div>
+                    <div class="corner-accent corner-tl"></div>
+                    <div class="corner-accent corner-tr"></div>
+                    <div class="corner-accent corner-bl"></div>
+                    <div class="corner-accent corner-br"></div>
+                </a>
+            </div>
+
+            <!-- Gallery Item 16 -->
+            <div class="gallery-item">
+                <a href="image/image16.jpeg" data-fancybox="gallery" data-caption="Desert Dunes">
+                    <img src="image/image16.jpeg" alt="Desert Dunes ">
+                    <div class="scan-line"></div>
+                    <div class="gallery-overlay">
+                        <div class="gallery-overlay-icon">🏜️</div>
+                        <span class="gallery-overlay-text">Desert Dunes</span>
+                    </div>
+                    <div class="corner-accent corner-tl"></div>
+                    <div class="corner-accent corner-tr"></div>
+                    <div class="corner-accent corner-bl"></div>
+                    <div class="corner-accent corner-br"></div>
+                </a>
+            </div>
+
+            <!-- Gallery Item 17 -->
+            <div class="gallery-item">
+                <a href="image/image17.jpeg" data-fancybox="gallery" data-caption="Rocky Coast">
+                    <img src="image/image17.jpeg" alt="Rocky Coast">
+                    <div class="scan-line"></div>
+                    <div class="gallery-overlay">
+                        <div class="gallery-overlay-icon">🌊</div>
+                        <span class="gallery-overlay-text">Rocky Coast</span>
+                    </div>
+                    <div class="corner-accent corner-tl"></div>
+                    <div class="corner-accent corner-tr"></div>
+                    <div class="corner-accent corner-bl"></div>
+                    <div class="corner-accent corner-br"></div>
+                </a>
+            </div>
+
+            <!-- Gallery Item 18 -->
+            <div class="gallery-item">
+                <a href="image/image18.jpeg" data-fancybox="gallery" data-caption="Rocky Coast">
+                    <img src="image/image18.jpeg" alt="Rocky Coast">
+                    <div class="scan-line"></div>
+                    <div class="gallery-overlay">
+                        <div class="gallery-overlay-icon">🌊</div>
+                        <span class="gallery-overlay-text">Rocky Coast</span>
+                    </div>
+                    <div class="corner-accent corner-tl"></div>
+                    <div class="corner-accent corner-tr"></div>
+                    <div class="corner-accent corner-bl"></div>
+                    <div class="corner-accent corner-br"></div>
+                </a>
+            </div>
+
+            <!-- Gallery Item 19 -->
+            <div class="gallery-item">
+                <a href="image/image19.jpeg" data-fancybox="gallery" data-caption="Rocky Coast">
+                    <img src="image/image19.jpeg" alt="Rocky Coast">
+                    <div class="scan-line"></div>
+                    <div class="gallery-overlay">
+                        <div class="gallery-overlay-icon">🌊</div>
+                        <span class="gallery-overlay-text">Rocky Coast</span>
+                    </div>
+                    <div class="corner-accent corner-tl"></div>
+                    <div class="corner-accent corner-tr"></div>
+                    <div class="corner-accent corner-bl"></div>
+                    <div class="corner-accent corner-br"></div>
+                </a>
+            </div>
+
+            <!-- Gallery Item 20 -->
+            <div class="gallery-item">
+                <a href="image/image20.jpeg" data-fancybox="gallery" data-caption="Rocky Coast">
+                    <img src="image/image20.jpeg" alt="Rocky Coast">
+                    <div class="scan-line"></div>
+                    <div class="gallery-overlay">
+                        <div class="gallery-overlay-icon">🌊</div>
+                        <span class="gallery-overlay-text">Rocky Coast</span>
+                    </div>
+                    <div class="corner-accent corner-tl"></div>
+                    <div class="corner-accent corner-tr"></div>
+                    <div class="corner-accent corner-bl"></div>
+                    <div class="corner-accent corner-br"></div>
+                </a>
+            </div>
+
+            <!-- Gallery Item 21 -->
+            <div class="gallery-item">
+                <a href="image/image21.jpeg" data-fancybox="gallery" data-caption="Rocky Coast">
+                    <img src="image/image21.jpeg" alt="Rocky Coast">
+                    <div class="scan-line"></div>
+                    <div class="gallery-overlay">
+                        <div class="gallery-overlay-icon">🌊</div>
+                        <span class="gallery-overlay-text">Rocky Coast</span>
+                    </div>
+                    <div class="corner-accent corner-tl"></div>
+                    <div class="corner-accent corner-tr"></div>
+                    <div class="corner-accent corner-bl"></div>
+                    <div class="corner-accent corner-br"></div>
+                </a>
+            </div>
+
+            <!-- Gallery Item 22 -->
+            <div class="gallery-item">
+                <a href="image/image22.jpeg" data-fancybox="gallery" data-caption="Rocky Coast">
+                    <img src="image/image22.jpeg" alt="Rocky Coast">
+                    <div class="scan-line"></div>
+                    <div class="gallery-overlay">
+                        <div class="gallery-overlay-icon">🌊</div>
+                        <span class="gallery-overlay-text">Rocky Coast</span>
+                    </div>
+                    <div class="corner-accent corner-tl"></div>
+                    <div class="corner-accent corner-tr"></div>
+                    <div class="corner-accent corner-bl"></div>
+                    <div class="corner-accent corner-br"></div>
+                </a>
+            </div>
+
+            <!-- Gallery Item 23 -->
+            <div class="gallery-item">
+                <a href="image/image23.jpeg" data-fancybox="gallery" data-caption="Rocky Coast">
+                    <img src="image/image23.jpeg" alt="Rocky Coast">
+                    <div class="scan-line"></div>
+                    <div class="gallery-overlay">
+                        <div class="gallery-overlay-icon">🌊</div>
+                        <span class="gallery-overlay-text">Rocky Coast</span>
+                    </div>
+                    <div class="corner-accent corner-tl"></div>
+                    <div class="corner-accent corner-tr"></div>
+                    <div class="corner-accent corner-bl"></div>
+                    <div class="corner-accent corner-br"></div>
+                </a>
+            </div>
+
+            <!-- Gallery Item 24 -->
+            <div class="gallery-item">
+                <a href="image/image24.jpeg" data-fancybox="gallery" data-caption="Rocky Coast">
+                    <img src="image/image24.jpeg" alt="Rocky Coast">
+                    <div class="scan-line"></div>
+                    <div class="gallery-overlay">
+                        <div class="gallery-overlay-icon">🌊</div>
+                        <span class="gallery-overlay-text">Rocky Coast</span>
+                    </div>
+                    <div class="corner-accent corner-tl"></div>
+                    <div class="corner-accent corner-tr"></div>
+                    <div class="corner-accent corner-bl"></div>
+                    <div class="corner-accent corner-br"></div>
+                </a>
+            </div>
+
+            <!-- Gallery Item 25 -->
+            <div class="gallery-item">
+                <a href="image/image25.jpeg" data-fancybox="gallery" data-caption="Rocky Coast">
+                    <img src="image/image25.jpeg" alt="Rocky Coast">
+                    <div class="scan-line"></div>
+                    <div class="gallery-overlay">
+                        <div class="gallery-overlay-icon">🌊</div>
+                        <span class="gallery-overlay-text">Rocky Coast</span>
+                    </div>
+                    <div class="corner-accent corner-tl"></div>
+                    <div class="corner-accent corner-tr"></div>
+                    <div class="corner-accent corner-bl"></div>
+                    <div class="corner-accent corner-br"></div>
+                </a>
+            </div>
+
+            <!-- Gallery Item 26 -->
+            <div class="gallery-item">
+                <a href="image/image26.jpeg" data-fancybox="gallery" data-caption="Rocky Coast">
+                    <img src="image/image26.jpeg" alt="Rocky Coast">
+                    <div class="scan-line"></div>
+                    <div class="gallery-overlay">
+                        <div class="gallery-overlay-icon">🌊</div>
+                        <span class="gallery-overlay-text">Rocky Coast</span>
+                    </div>
+                    <div class="corner-accent corner-tl"></div>
+                    <div class="corner-accent corner-tr"></div>
+                    <div class="corner-accent corner-bl"></div>
+                    <div class="corner-accent corner-br"></div>
+                </a>
+            </div>
+
+            <!-- Gallery Item 27 -->
+            <div class="gallery-item">
+                <a href="image/image27.jpeg" data-fancybox="gallery" data-caption="Rocky Coast">
+                    <img src="image/image27.jpeg" alt="Rocky Coast">
+                    <div class="scan-line"></div>
+                    <div class="gallery-overlay">
+                        <div class="gallery-overlay-icon">🌊</div>
+                        <span class="gallery-overlay-text">Rocky Coast</span>
+                    </div>
+                    <div class="corner-accent corner-tl"></div>
+                    <div class="corner-accent corner-tr"></div>
+                    <div class="corner-accent corner-bl"></div>
+                    <div class="corner-accent corner-br"></div>
+                </a>
+            </div> <!-- Gallery Item 28 -->
+            <div class="gallery-item">
+                <a href="image/image28.jpeg" data-fancybox="gallery" data-caption="Rocky Coast">
+                    <img src="image/image28.jpeg" alt="Rocky Coast">
+                    <div class="scan-line"></div>
+                    <div class="gallery-overlay">
+                        <div class="gallery-overlay-icon">🌊</div>
+                        <span class="gallery-overlay-text">Rocky Coast</span>
+                    </div>
+                    <div class="corner-accent corner-tl"></div>
+                    <div class="corner-accent corner-tr"></div>
+                    <div class="corner-accent corner-bl"></div>
+                    <div class="corner-accent corner-br"></div>
+                </a>
+            </div> <!-- Gallery Item 29 -->
+            <div class="gallery-item">
+                <a href="image/image29.jpeg" data-fancybox="gallery" data-caption="Rocky Coast">
+                    <img src="image/image29.jpeg" alt="Rocky Coast">
+                    <div class="scan-line"></div>
+                    <div class="gallery-overlay">
+                        <div class="gallery-overlay-icon">🌊</div>
+                        <span class="gallery-overlay-text">Rocky Coast</span>
+                    </div>
+                    <div class="corner-accent corner-tl"></div>
+                    <div class="corner-accent corner-tr"></div>
+                    <div class="corner-accent corner-bl"></div>
+                    <div class="corner-accent corner-br"></div>
+                </a>
+            </div> <!-- Gallery Item 30 -->
+            <div class="gallery-item">
+                <a href="image/image30.jpeg" data-fancybox="gallery" data-caption="Rocky Coast">
+                    <img src="image/image30.jpeg" alt="Rocky Coast">
+                    <div class="scan-line"></div>
+                    <div class="gallery-overlay">
+                        <div class="gallery-overlay-icon">🌊</div>
+                        <span class="gallery-overlay-text">Rocky Coast</span>
+                    </div>
+                    <div class="corner-accent corner-tl"></div>
+                    <div class="corner-accent corner-tr"></div>
+                    <div class="corner-accent corner-bl"></div>
+                    <div class="corner-accent corner-br"></div>
+                </a>
+            </div> <!-- Gallery Item 31-->
+            <div class="gallery-item">
+                <a href="image/image31.jpeg" data-fancybox="gallery" data-caption="Rocky Coast">
+                    <img src="image/image31.jpeg" alt="Rocky Coast">
+                    <div class="scan-line"></div>
+                    <div class="gallery-overlay">
+                        <div class="gallery-overlay-icon">🌊</div>
+                        <span class="gallery-overlay-text">Rocky Coast</span>
+                    </div>
+                    <div class="corner-accent corner-tl"></div>
+                    <div class="corner-accent corner-tr"></div>
+                    <div class="corner-accent corner-bl"></div>
+                    <div class="corner-accent corner-br"></div>
+                </a>
+            </div> <!-- Gallery Item 32 -->
+            <div class="gallery-item">
+                <a href="image/image32.jpeg" data-fancybox="gallery" data-caption="Rocky Coast">
+                    <img src="image/image32.jpeg" alt="Rocky Coast">
+                    <div class="scan-line"></div>
+                    <div class="gallery-overlay">
+                        <div class="gallery-overlay-icon">🌊</div>
+                        <span class="gallery-overlay-text">Rocky Coast</span>
+                    </div>
+                    <div class="corner-accent corner-tl"></div>
+                    <div class="corner-accent corner-tr"></div>
+                    <div class="corner-accent corner-bl"></div>
+                    <div class="corner-accent corner-br"></div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <div class="footer-glow"></div>
+        <p>&copy; 2024 ELITE GALLERY - ALL RIGHTS RESERVED</p>
+    </div>
+
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Fancybox JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.js"></script>
+
+    <!-- Custom JavaScript for Security -->
+    <script>
+        // Initialize Fancybox
+        Fancybox.bind("[data-fancybox]", {
+            Toolbar: {
+                display: {
+                    left: [],
+                    middle: [],
+                    right: ["close"]
+                }
+            },
+            Images: {
+                protected: true
+            },
+            on: {
+                reveal: (fancybox, slide) => {
+                    // Disable right-click on fancybox images
+                    const img = slide.$el.querySelector('img');
+                    if (img) {
+                        img.addEventListener('contextmenu', e => e.preventDefault());
+                    }
+                }
+            }
+        });
+
+        // Disable right-click on entire page
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            return false;
+        });
+
+        // Disable F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U
+        document.addEventListener('keydown', function(e) {
+            // F12
+            if (e.keyCode === 123) {
+                e.preventDefault();
+                return false;
+            }
+            // Ctrl+Shift+I
+            if (e.ctrlKey && e.shiftKey && e.keyCode === 73) {
+                e.preventDefault();
+                return false;
+            }
+            // Ctrl+Shift+J
+            if (e.ctrlKey && e.shiftKey && e.keyCode === 74) {
+                e.preventDefault();
+                return false;
+            }
+            // Ctrl+U
+            if (e.ctrlKey && e.keyCode === 85) {
+                e.preventDefault();
+                return false;
+            }
+            // Ctrl+S
+            if (e.ctrlKey && e.keyCode === 83) {
+                e.preventDefault();
+                return false;
+            }
+        });
+
+        // Disable text selection
+        document.onselectstart = function() {
+            return false;
+        };
+
+        // Disable drag and drop
+        document.addEventListener('dragstart', function(e) {
+            e.preventDefault();
+            return false;
+        });
+
+        // Disable copy
+        document.addEventListener('copy', function(e) {
+            e.preventDefault();
+            return false;
+        });
+
+        // Additional protection for mobile devices
+        document.addEventListener('touchstart', function(e) {
+            if (e.touches.length > 1) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+
+        // Disable long press on mobile
+        let touchTimer;
+        document.addEventListener('touchstart', function(e) {
+            touchTimer = setTimeout(function() {
+                e.preventDefault();
+            }, 500);
+        });
+
+        document.addEventListener('touchend', function() {
+            clearTimeout(touchTimer);
+        });
+
+        // Disable screenshot on some browsers (limited effectiveness)
+        document.addEventListener('keyup', function(e) {
+            if (e.key === 'PrintScreen') {
+                navigator.clipboard.writeText('');
+                alert('Screenshots are disabled on this page');
+            }
+        });
+
+        // Detect DevTools
+        const devtools = {
+            isOpen: false,
+            orientation: undefined
+        };
+
+        const threshold = 160;
+
+        setInterval(function() {
+            if (window.outerWidth - window.innerWidth > threshold || 
+                window.outerHeight - window.innerHeight > threshold) {
+                if (!devtools.isOpen) {
+                    devtools.isOpen = true;
+                    // Optional: redirect or show warning
+                    // window.location.href = 'about:blank';
+                }
+            } else {
+                devtools.isOpen = false;
+            }
+        }, 500);
+
+        // Clear console periodically
+        setInterval(function() {
+            console.clear();
+        }, 1000);
+
+        // Override console functions
+        (function() {
+            const noop = function() {};
+            const methods = ['log', 'debug', 'info', 'warn', 'error', 'table', 'trace'];
+            methods.forEach(function(method) {
+                console[method] = noop;
+            });
+        })();
+    </script>
+
+</body>
+</html>
